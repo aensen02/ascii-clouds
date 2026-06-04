@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GTM_June-04_pop up</title>
+	<meta charset="utf-8">
+	<!-- Compiled w/ P5LIVE, http://github.com/ffd8/p5live -->
+	<style type="text/css">
+		body{
+			margin:0;
+			overflow:hidden;
+		}
+		canvas{
+			position:fixed;
+			top:0;
+			left:0;
+			z-index:-1;
+			width:100vw;
+			height:100vh;
+			margin:0;
+		}
+	</style>
+	<script type="text/javascript">
+		// eco-mode = only render if window focused
+		window.onblur = function () {
+			noLoop();
+		};
+		window.onfocus = function () {
+			loop();
+		};
+	</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
+</head>
+<body style="background: rgb(0, 0, 0);">
+
+<script type="text/javascript">
+//GTM_June-04_pop up
+
+/* CUSTOM FUNCTIONS FOR P5LIVE */
+// keep fullscreen if window resized
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+}
+
+// custom ease function
+function ease(iVal, oVal, eVal){
+	return oVal += (iVal - oVal) * eVal;
+}
+
+// processing compatibility
+function println(msg){
+	print(msg);
+}
+
+
+// no p5sound
+// schaltet die p5 sound library aus dass da code oh als html datei lofft
+
+let asciiRamp = " .:-=+*#%@";
+let cellSize;
+let t = 0;
+let amount; //amount of ascii
+let speed; //speed the ascii moves at
+let sliderNoise; // controlls the noise of the motion
+let waveX;
+let waveY;
+
+let guiHolder;
+let saveBtn;
+let saveTxt;
+let saveGifBtn;
+let randomBtn;
+ let txt = ""
+
+
+function setup() {
+  canvas = createCanvas(windowWidth, windowHeight);
+
+  canvas.style('margin', '20px auto')
+  textFont("monospace");
+  textSize(cellSize);
+  //textSize(gray/15) //
+  textAlign(CENTER, CENTER);
+  noStroke();
+
+ //About Button
+  aboutBtn = createButton('about')
+  aboutBtn.mousePressed(aboutToggle)
+	.class('aboutBtn')
+
+  // CREATE GUI CONTAINER
+  // create generic div (html container) 
+  guiHolder = createDiv() 
+	.class('guiHolder') // add class for styling via CSS 
+	
+  // use styled div as label 
+  createDiv('<h2>ascii clouds ☁💫<h2>') 
+	.parent(guiHolder) // place inside gui div 
+	.class('title') // class for CSS 
+
+	createDiv('Type your ascii') 
+		.parent(guiHolder).class('label')
+ 
+ //input for the type by the user
+  asciiInput = createInput(asciiRamp);
+  //asciiInput.position(windowWidth / 2, 80);
+  asciiInput.size(160);
+  asciiInput.attribute("placeholder", "Type characters here")
+  .parent(guiHolder) //  place inside gui div 
+  .class('rampInput').class('margin');
+  
+  asciiInput.input(updateRamp);
+  
+  function updateRamp() {
+  asciiRamp = asciiInput.value();
+  if (asciiRamp.length === 0) {
+    asciiRamp = " ";
+  }
+}
+
+	createDiv('cloudy').parent(guiHolder).class('label') 
+	
+  //slider that controls the amount of ascii
+  amount = createSlider(50, 255, 100) // min, max, value, step
+  //amount.position(windowWidth/2, 30)
+  amount.size(100)
+  .parent(guiHolder) //  place inside gui div 
+  .class('slider') // class for CSS 
+
+createDiv('windy').parent(guiHolder).class('label')
+
+  //slider that controls the speed the ascii moves at
+  speed = createSlider(1, 15, 3) // min, max, value, step
+  speed.size(100)
+  .parent(guiHolder)  
+  .class('slider') 
+
+createDiv('noise').parent(guiHolder).class('label') //better names: randomness, organic, ...
+
+   //slider that controls the noise of the motion
+  sliderNoise = createSlider(0, 10, 3) // min, max, value, step
+  sliderNoise.size(100)
+  .parent(guiHolder)
+  .class('slider')
+
+createDiv('x amount').parent(guiHolder).class('label')
+
+     //slider that controls the x achsis
+  waveX = createSlider(1, 30, 20) // min, max, value, step
+  waveX.size(100)
+  .parent(guiHolder)
+  .class('slider')
+
+createDiv('y amount') .parent(guiHolder) .class('label')
+
+       //slider that controls the y achsis
+  waveY = createSlider(1, 30, 0) // min, max, value, step
+  waveY.size(100)
+  .parent(guiHolder)
+  .class('slider')
+
+createDiv('type size') .parent(guiHolder) .class('label')
+
+  //slider that controls the size
+  cellSize = createSlider(10, 40, 16) // min, max, value, step
+  cellSize.size(100)
+  .parent(guiHolder)
+  .class('slider')
+
+  //Button set settings to random
+  randomBtn = createButton('random settings')
+  randomBtn.mousePressed(changeSettings)
+	.parent(guiHolder).class('btnRandom')
+
+colourHolder = createDiv().parent(guiHolder).class("colourHolder")
+colourItem = createDiv().parent(colourHolder).class("colourItem")
+
+createDiv('ascii colour') 
+	.parent(colourItem).class('label')
+
+//let's the user change the colour of the ascii
+  colorPicker = createColorPicker('#f38fa9')
+  .parent(colourItem) //  place inside gui div 
+  .class('colourPicker')
+  //colorPicker.position(windowWidth / 2, 110);
+  
+  colourItem = createDiv().parent(colourHolder).class("colourItem")
+
+createDiv('bg colour') .parent(colourItem) .class('label')
+  
+  bgColorPicker = createColorPicker('white')
+  .parent(colourItem) //  place inside gui div 
+  .class('colourPicker')
+  //colorPicker.position(windowWidth / 2, 110);
+
+  createElement("br").parent(guiHolder)
+  createElement("br").parent(guiHolder)
+  createElement("br").parent(guiHolder)
+  createElement("br").parent(guiHolder)
+
+createElement("hr").parent(guiHolder).class('line')
+
+
+
+ //Button to save png
+  saveBtn = createButton('Save as png')
+  saveBtn.mousePressed(saveAsciiImg)
+	.parent(guiHolder)
+	.class('save')
+	
+// Btn to save as gif
+  saveGifBtn = createButton('Save as gif')
+  saveGifBtn.mousePressed(saveAsciiGif)
+  .parent(guiHolder)
+  .class('save')
+
+//Button to save text
+  saveTxt = createButton('Save as text')
+  saveTxt.mousePressed(saveAsciiTxt)
+	.parent(guiHolder)
+	.class('save')
+	
+	myAbout = createDiv().class('myAbout').draggable().hide()
+	createDiv('<h2>Ascii Clouds ☁💫</h2>').parent(myAbout).class('title')
+	createDiv('Hello amazing ppl! <br> I created this tool in college for my Generative Tool Making class at the HGK in Basel. With the help of our amazing lecturer Ted Davis. <br> Ascii Clouds is for you to experiment with some random ascii art in motion. Test out the settings or just press random for some interesting results. You can download the results as png, gif or as a text file. <br><br> Have fun!!').parent(myAbout).class('label')
+
+	// CSS
+    // create <style> tag for custom css (note `backticks` for multi-line value!) 
+  createElement('style', ` 
+  *{ 
+    outline: none; 
+    box-sizing: border-box; 
+  } 
+
+body{
+	cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text x='50%' y='50%' text-anchor='middle' dominant-baseline='middle'>💫</text></svg>") 20 24, auto;
+}
+
+	.myAbout{
+		position: absolute;
+		width: 25%;
+		height: 27%;
+		left: 40%;
+		top: 25%;
+		padding: 10px;
+		padding-right: 15px;
+		background: #f38fa9;
+		opacity: 0.95;
+		border: 2px solid #fff;
+		border-radius: 10px;
+	}
+
+    .guiHolder{ 
+      position: fixed; 
+      right: 50px; 
+      top: 50px; 
+      border: 2px solid #fff; 
+      border-radius: 10px; 
+      padding: 0px 5px 10px 10px; 
+      width: 300px;
+      background-color: #f38fa9;
+      opacity: 0.95;
+    } 
+
+	.line{
+		display: block;
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+		margin-left: auto;
+		margin-right: auto;
+		border-style: inset;
+		border-width: 1px;
+		border-color: white;
+	}
+
+    .title{ 
+      color:#fff; 
+      font-family:sans-serif; 
+      font-size:10pt; 
+      padding: 0px 0px 5px 5px; 
+    } 
+    
+    .label{ 
+      color:#fff; 
+      font-family:sans-serif; 
+      font-size:10pt; 
+      margin-left: 8px;
+      display: block;
+    } 
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 5px;  
+  background: white;
+  outline: none;
+  opacity: 0.9;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  margin-left: 8px;
+  margin-bottom: 12px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%; 
+  background: #e0218a;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+}
+
+    .rampInput{
+    	display: block;
+    	position:relative;
+    	margin-top: 8px;
+    }
+    
+    .margin{
+    	margin: 8px;
+    }
+    
+    .colourHolder{
+    	display:block;
+    	width:100%;
+    }
+    
+    .colourItem{
+    	float:left;
+    	margin: 10px 15px 0px 0px;
+    	padding-bottom: 10px;
+    }
+
+	.colourPicker{
+		border: none;
+		border-radius: 5px;
+		background-color: white;
+	    margin-top: 6px;
+	    margin-left: 8px;
+	}
+	
+	.btnRandom{
+		border: none;
+		border-radius: 5px;
+		color: #fff;
+		background-color: #f64a8a;
+		padding: 7px;
+		text.align: center;
+		display: block;
+		margin: 5px 5px;
+		cursor: pointer;
+	}
+	
+	.save{
+		  border: none;
+		  border-radius: 5px;
+		  color: white;
+		  background-color: #f64a8a;
+		  padding: 7px;
+		  text-align: center;
+		  text-decoration: none;
+		  display: inline-block;
+		  margin: 5px 5px;
+		  cursor: pointer;
+	}
+
+	.aboutBtn{
+		border: none;
+		border-radius: 5px;
+		color: white;
+		background-color: #f64a8a;
+		padding: 7px;
+		text-align: center;
+		text-decoration: none;
+		position: fixed;
+		left: 25px;
+		top: 50px;
+		cursor: pointeR;
+	}
+
+	.save:hover{
+		color: pink;
+	}
+    `) 
+}
+
+function draw() {
+  background(bgColorPicker.value());
+  
+  // act dont know what c does hehe
+  //let c = color(0, 204, 0);
+  fill(colorPicker.value());
+
+  let g = amount.value();
+  let n = sliderNoise.value();
+  let myX = waveX.value()/100;
+  let myY = waveY.value()/100;
+  let cs = cellSize.value();
+  
+  //print(width*height/cellSize)
+  txt = []
+  for (let y = 0; y < height; y += cs) {
+	txtLine = ""
+    for (let x = 0; x < width; x += cs) {
+
+      // base wave pattern
+      let wave =
+        sin(x * myX + t) +
+        sin(y * myY + t * 1.4) +
+        noise(x * 0.01, y * 0.01, t * 0.3) * n;
+
+      // convert wave to grayscale 0..255 > stores the brightness level of the wave pattern
+      let gray = map(wave, -2, 4, 0, 255);
+
+      /* map grayscale to ascii character 
+      > If gray is near 0, the result is near the start of the ramp; 
+      if it is near g, the result is near the end of the ramp */
+      let index = floor(map(gray, 0, g, 0, asciiRamp.length));
+      let density = asciiRamp.charAt(index);
+
+    	// if below certain cellSize, can use dynamic fontsize
+    	//textSize(round(constrain(gray/2, 1, 20))); // ascii verändert größe
+    	//textSize(10)
+    	text(density, x, y);
+    	if(density == ""){
+    		density = " "
+    	}
+		txtLine += density
+    }
+    txt.push(txtLine)
+  }
+  
+let sp = speed.value()/100;
+  t += sp;
+
+	textSize(cellSize.value());
+}
+
+// Function that saves the canvas as a png
+function saveAsciiImg() {
+	saveCanvas("ascii-clouds", "png");
+}
+
+function saveAsciiGif() {
+	saveGif("ascii-clouds", 60, {
+    units: "frames",
+    delay: 0
+  });
+}
+
+function saveAsciiTxt() {
+	saveStrings(txt, "ascii-clouds.txt")
+}
+
+//function to get random numbers for the sliders
+function changeSettings(){
+	amount.value(random(50, 255));
+	speed.value(random(1, 15));
+	sliderNoise.value(random(0, 10));
+	waveX.value(random(1, 30));
+	waveY.value(random(1, 30));
+	cellSize.value(random(10, 40));
+}
+
+function aboutToggle(){
+		if( myAbout.style('display') == 'none'){
+			myAbout.show()
+		} else{
+			myAbout.hide()
+		}
+}
+</script>
+
+</body>
+</html>
