@@ -219,9 +219,9 @@ createElement("hr").parent(guiHolder).class('line')
 	.parent(guiHolder)
 	.class('save')
 	
-	myAbout = createDiv().class('myAbout').draggable().hide()
+	myAbout = createDiv().class('myAbout').draggable()
 	createDiv('<h2>Ascii Clouds ☁💫</h2>').parent(myAbout).class('title')
-	createDiv('Hello amazing ppl! <br> I created this tool in college for my Generative Tool Making class at the HGK in Basel. With the help of our amazing lecturer Ted Davis. <br> Ascii Clouds is for you to experiment with some random ascii art in motion. Test out the settings or just press random for some interesting results. You can download the results as png, gif or as a text file. <br><br> Have fun!!').parent(myAbout).class('label')
+	createDiv('Hello amazing ppl! <br> I created this tool in college for my Generative Tool Making class at the HGK in Basel. With the help of our amazing lecturer Ted Davis. <br> Ascii Clouds is for you to experiment with some random ascii art in motion. Test out the settings or just press random for some interesting results. You can download the results as png, gif or as a text file. <br> Have fun!!<br><br><a href="https://readymag.website/u578562430/6296727/" target="_blank">Check out my portfolio 💖</a>').parent(myAbout).class('label')
 
 	// CSS
     // create <style> tag for custom css (note `backticks` for multi-line value!) 
@@ -359,6 +359,10 @@ body{
 		margin: 5px 5px;
 		cursor: pointer;
 	}
+
+    .btnRandom:hover{
+      color:pink;
+    }
 	
 	.save{
 		  border: none;
@@ -371,6 +375,10 @@ body{
 		  display: inline-block;
 		  margin: 5px 5px;
 		  cursor: pointer;
+	}
+
+    .save:hover{
+		color: pink;
 	}
 
 	.aboutBtn{
@@ -387,9 +395,21 @@ body{
 		cursor: pointeR;
 	}
 
-	.save:hover{
-		color: pink;
-	}
+	.aboutBtn:hover{
+      color:pink;
+    }
+
+    a {
+      color: white;
+      background-color: none;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #f64a8a;
+    }
+
     `) 
 }
 
